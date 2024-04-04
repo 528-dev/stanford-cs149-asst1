@@ -249,7 +249,40 @@ void clampedExpVector(float* values, int* exponents, float* output, int N) {
   // Your solution should work for any value of
   // N and VECTOR_WIDTH, not just when VECTOR_WIDTH divides N
   //
-  
+
+  __cs149_vec_float v;
+  __cs149_vec_int e;
+  __cs149_vec_float res;
+
+  __cs149_vec_int zero = _cs149_vset_int(0);
+  __cs149_vec_int one = _cs149_vset_int(1);
+  __cs149_vec_float ceil = _cs149_vset_float(9.999999f);
+  __cs149_vec_int count;
+
+  __cs149_mask maskAll, maskCountGtZero, maskValueGtCeil;
+
+  for (int i = 0; i < N; i += VECTOR_WIDTH){
+    int width = min(VECTOR_WIDTH, N - i);
+    maskAll = _cs149_init_ones(width); // all ones;
+    count = _cs149_vset_int(0); // all zeros;
+
+    _cs149_vset_float(res, 1.f, maskAll);                   // res = 1.0;
+    _cs149_vload_float(v, values + i, maskAll);
+    _cs149_vload_int(e, exponents + i, maskAll);
+
+    _cs149_vload_int(count, exponents + i, maskAll);
+    _cs149_vgt_int(maskCountGtZero, count, zero, maskAll);
+
+    while (_cs149_cntbits(maskCountGtZero)) {                       // while (exp > 0) {
+      _cs149_vmult_float(res, res, v, maskCountGtZero);             //  res *= values;
+      _cs149_vsub_int(count, count, one, maskCountGtZero);          //  exp -= 1;
+      _cs149_vgt_float(maskValueGtCeil, res, ceil, maskAll);        //  if (res > 9.999999)
+      _cs149_vmove_float(res, ceil, maskValueGtCeil);               //    res = 9.999999;
+      _cs149_vgt_int(maskCountGtZero, count, zero, maskCountGtZero);// }
+    }
+    _cs149_vstore_float(output + i, res, maskAll);
+  }
+
 }
 
 // returns the sum of all elements in values
