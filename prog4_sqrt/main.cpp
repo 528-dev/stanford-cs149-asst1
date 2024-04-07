@@ -34,7 +34,23 @@ int main() {
         // to you generate best and worse-case speedups
         
         // starter code populates array with random input values
-        values[i] = .001f + 2.998f * static_cast<float>(rand()) / RAND_MAX;
+        
+        // MY MODIFICATION
+
+        // original code
+        // values[i] = .001f + 2.998f * static_cast<float>(rand()) / RAND_MAX;
+
+        // 2. maximize speedup over the sequential version
+        // values[i] = 2.999f;
+
+        // 3.1 minimize with-task speedup over the sequential version
+        // values[i] = 1; 
+
+        // 3.2 minimize without-task speedup over the sequential version
+        if (i % 8 == 0) values[i] = 2.999;
+        else values[i] = 1; 
+
+        // MY MODIFICATION
     }
 
     // generate a gold version to check results
